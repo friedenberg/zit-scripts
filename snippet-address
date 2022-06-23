@@ -1,0 +1,106 @@
+#! /bin/bash -e
+
+set -o pipefail
+
+print_zettel_toml_as_json() (
+	for hinweis in "$@"; do
+		zit show -type akte "$hinweis" |
+			tomlq |
+      jq ". + ({uid: \"zit://$hinweis\"})"
+	done
+)
+
+print_zettel_toml_as_json xenon/poliwhirl lanthanum/growlithe \
+	| jq -s '
+  def formats:
+    .uid as $uid
+    | [
+      {
+        title: "street",
+        format: (.street | ascii_upcase)
+      },
+      {
+        title: "street full",
+        format: (.street + " " + .unit | ascii_upcase)
+      },
+      {
+        title: "unit",
+        format: (.unit | ascii_upcase)
+      },
+      {
+        title: "city",
+        format: (.city | ascii_upcase)
+      },
+      {
+        title: "state",
+        format: (.state | ascii_upcase)
+      },
+      {
+        title: "zip",
+        format: .zip
+      },
+      {
+        title: "zip+4",
+        format: (.zip + "-" + .zip_extension)
+      },
+      {
+        title: "one line",
+        format: (
+          .street
+          + " "
+          + .unit
+          + ", "
+          + .city
+          + " "
+          + .state
+          + " "
+          + .zip
+          + "-"
+          + .zip_extension
+          | ascii_upcase
+        )
+      },
+      {
+        title: "multi line",
+        format: (
+          .street
+          + " "
+          + .unit
+          + "\n"
+          + .city
+          + " "
+          + .state
+          + " "
+          + .zip
+          + "-"
+          + .zip_extension
+          | ascii_upcase
+        )
+      }
+    ] | [(.[] | . + {uid: ($uid + "/" + (.title | @uri))})]
+    ;
+
+  def items_from_formats:
+    .[]
+    | {
+      uid: .uid,
+      title: .title,
+      subtitle: .format,
+      arg: .format,
+      match: (.title + " " + .format),
+    }
+    ;
+
+  {
+    items: (
+      [
+        (
+          .[]
+          | formats
+          | items_from_formats
+        )
+      ]
+      | flatten
+    )
+  }
+'

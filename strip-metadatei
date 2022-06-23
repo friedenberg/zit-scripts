@@ -1,0 +1,14 @@
+#! /usr/bin/env awk -f
+
+BEGIN {
+  boundary_count = 0
+}
+
+$1 == "---" {
+  boundary_count = boundary_count + 1
+  next
+}
+
+boundary_count == 2 {
+  print $0
+}

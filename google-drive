@@ -1,0 +1,8 @@
+#! /bin/bash -e
+
+today="$(date -u +%Y-%m-%d)"
+
+zit add \
+  -organize \
+  -etiketten "zz-inbox-$today" \
+  /Volumes/GoogleDrive/My\ Drive/zz\ Inbox/*

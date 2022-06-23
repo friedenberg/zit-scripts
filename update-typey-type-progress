@@ -1,0 +1,43 @@
+#! /bin/bash -e
+
+get_date_tag() (
+  filename="$(basename "$1")"
+  date="${filename#typey-type-progress-}"
+  date="${date%.json}"
+  date="${date:4}"
+  date_mon_str="${date:0:3}"
+  date_mon="$(date -j -f "%b" "$date_mon_str" "+%m")"
+  date_day="${date:4:2}"
+  date_year="${date:7:4}"
+  echo "$date_year-$date_mon-$date_day"
+)
+
+# cmd="$1"
+shift
+
+update_with_file() (
+  filename="$1"
+  date_tag="w-$(get_date_tag "$filename")"
+
+  zit checkin-akte \
+    -new-etiketten "$date_tag" \
+    chaos/dratini "$filename"
+)
+
+filenames=()
+
+if [[ -n "$1" ]]; then
+  filenames=("$@")
+else
+  while IFS= read -r -d $'\0'
+  do
+    filenames+=("$REPLY")
+  done < <(find ~/Downloads -iname 'typey*.json' -print0)
+fi
+
+for filename in "${filenames[@]}"
+do
+  update_with_file "$filename" && rm "$filename"
+done
+
+

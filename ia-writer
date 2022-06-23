@@ -1,0 +1,37 @@
+#! /bin/bash -e
+
+verb="$1"
+
+ia_writer_print_all_md() (
+	dir="$HOME/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents"
+	find "$dir" -iname '*.md' -print0
+)
+
+zit_add_today() (
+	today="$(date -u +%Y-%m-%d)"
+
+	zit add \
+		-organize \
+		-delete \
+		-etiketten "zz-inbox-$today" \
+		"$@"
+)
+
+export -f ia_writer_print_all_md
+export -f zit_add_today
+
+case "$verb" in
+push)
+	echo "Push not implemented" >&2
+	exit 1
+	;;
+
+pull)
+	ia_writer_print_all_md | xargs -0 bash -c 'zit_add_today "$@"' --
+	;;
+
+*)
+	echo "Unsupported verb: $verb" >&2
+	exit 1
+	;;
+esac

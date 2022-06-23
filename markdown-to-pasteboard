@@ -1,0 +1,15 @@
+#! /bin/bash -e
+
+eval `/usr/libexec/path_helper -s`
+
+file="$1"
+tacky="$HOME/Library/Python/3.9/bin/tacky"
+
+echo "Running pandoc..."
+./.zit/bin/strip-metadatei "$file" \
+  | pandoc --to html -demail \
+  | sed 's|<title>-</title>||' \
+  | "$tacky" copy \
+    -i public.html - \
+    -i public.utf8-plain-text <(./.zit/bin/strip-metadatei "$file")
+echo "Copied to pasteboard"
