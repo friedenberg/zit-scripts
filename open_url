@@ -1,0 +1,15 @@
+#! /bin/bash -e
+
+print_urls() (
+  zit cat-objekte -type akte "$@"
+)
+
+trim_brackets() (
+  sed "s/^.//g; s/.\$//g"
+)
+
+open_urls() (
+  xargs open -u
+)
+
+print_urls "$@" | trim_brackets | open_urls
