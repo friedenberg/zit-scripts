@@ -1,0 +1,18 @@
+#! /bin/bash -e
+
+shift
+
+cat_zettel() (
+  f="$1"
+
+  if [[ -f "$f" ]]; then
+    .zit/bin/strip-metadatei "$f"
+  else
+    zit cat-objekte -type akte "$f"
+  fi
+)
+
+for f in "$@"; do
+  cat_zettel "$f" | gist -cp -t md
+done
+

@@ -1,0 +1,38 @@
+#! /bin/bash -e
+
+do_diff_for_file() (
+	file="$1"
+	diff_cmd=(
+		git
+		diff
+		--color=always
+		--no-index
+		--word-diff
+	)
+
+	hinweis="$(dirname "$file")/$(basename -s .md "$file")"
+	a="$(mktemp)"
+
+	if ! zit show "$hinweis" >"$a" 2>/dev/null; then
+		return
+	fi
+
+	# --exit-code is implied in the git diff command
+	"${diff_cmd[@]}" -- "$a" "$file" || true
+)
+
+shift
+
+files=("$@")
+
+if [[ "${files#}" -eq 0 ]]; then
+	files=(
+		*/*.md
+	)
+fi
+
+{
+	for file in "${files[@]}"; do
+		do_diff_for_file "$file"
+	done
+} | less -r

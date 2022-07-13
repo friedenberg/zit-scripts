@@ -1,0 +1,20 @@
+#! /bin/bash -e
+
+cat_zettel() (
+	f="$1"
+
+	if [[ -f "$f" ]]; then
+		.zit/bin/strip-metadatei "$f"
+	else
+		zit cat-objekte -type akte "$f"
+	fi
+)
+
+shift
+
+for f in "$@"; do
+	cat_zettel "$f" |
+		mmdc -o "$f.png"
+
+  open "$f.png"
+done
