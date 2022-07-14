@@ -1,0 +1,79 @@
+#! /bin/bash -e
+
+shift
+outdir="$1"
+
+if [[ -z "$outdir" ]]; then
+	echo "an output directory must be specified" >&2
+	exit 1
+fi
+
+shift
+
+get_all_hinweisen() (
+	zit cat -type hinweis | cut -d: -f1
+)
+
+get_all_akten() (
+	zit cat -type akte | cut -d: -f1
+)
+
+archive_hinweis() (
+	hinweis="$1"
+
+	if ! json="$(zit log "$hinweis")"; then
+		echo "failed to log hinweis: $hinweis" >&2
+		echo "$json" >&2
+		return
+	fi
+
+	echo "$json" | jq -r ".Zettels | .[] | .Sha"
+)
+
+save_all_zettelen() (
+	backup_dir="$1"
+	hinweisen=()
+
+	while IFS= read -r; do
+		hinweisen+=("$REPLY")
+	done < <(get_all_hinweisen)
+
+	for hinweis in "${hinweisen[@]}"; do
+		mkdir -p "$backup_dir/$hinweis"
+		shas=()
+
+		while IFS= read -r; do
+			shas+=("$REPLY")
+		done < <(archive_hinweis "$hinweis")
+
+		for sha in "${!shas[@]}"; do
+			echo "archiving zettel: ${shas[$sha]}@$sha"
+			echo "($backup_dir/$hinweis/$sha.md)"
+			zit show "${shas[$sha]}" >"$backup_dir/$hinweis/$sha.md"
+		done
+	done
+)
+
+save_all_akten() (
+	backup_dir="$1"
+	akten=()
+
+	while IFS= read -r; do
+		akten+=("$REPLY")
+	done < <(get_all_akten)
+
+	for akte in "${akten[@]}"; do
+		first_two="${akte:0:2}"
+		mkdir -p "$backup_dir/$first_two"
+		echo "archiving akte: $akte"
+		zit cat-objekte -type akte "$akte" >"$backup_dir/$first_two/$akte"
+	done
+)
+
+dir_zettelen="$outdir/zettelen"
+dir_akten="$outdir/akten"
+
+mkdir -p "$dir_zettelen" "$dir_akten"
+
+save_all_zettelen "$dir_zettelen"
+save_all_akten "$dir_akten"
