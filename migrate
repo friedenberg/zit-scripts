@@ -1,0 +1,15 @@
+#! /bin/bash -xe
+
+# while IFS= read -r; do
+#   schwanz="$(basename "$REPLY")"
+#   kopf="$(basename "$(dirname "$REPLY")")"
+#   mkdir -p ".zit/Objekten/Akten/$kopf"
+#   mv ".zit/Objekte/Akte/$kopf/$schwanz" ".zit/Objekten/Akten/$kopf/$schwanz"
+# done < <(find .zit/Objekte/Akte -type f -mindepth 1)
+
+# while IFS= read -r; do
+#   schwanz="$(basename "$REPLY")"
+#   kopf="$(basename "$(dirname "$REPLY")")"
+#   mkdir -p ".zit/Objekten/Akten/$kopf"
+#   mv ".zit/Objekte/Akte/$kopf/$schwanz" ".zit/Objekten/Akten/$kopf/$schwanz"
+# done < <(find .zit/Objekte/Akte -type f -mindepth 1)
