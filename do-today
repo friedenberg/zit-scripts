@@ -1,0 +1,17 @@
+#! /bin/bash -e
+
+date() (
+	command date "+%Y-%m-%d"
+)
+
+date_tag() (
+	echo "w-$(date)"
+)
+
+shift
+
+date_tag="$(date_tag)"
+
+extras="$date_tag,zz-archive-task-done,zz-archive-task-cancelled"
+
+zit organize -extras "$extras" "$@" today
