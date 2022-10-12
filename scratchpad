@@ -1,11 +1,13 @@
 #! /bin/bash -e
 
 date() (
-  command date "+%Y-%m-%d"
+	command date "+%Y-%m-%d"
 )
 
 date_tag() (
-  echo "zz-inbox-$(date)"
+	echo "zz-inbox-$(date)"
 )
 
-zit organize "$(date_tag)"
+shift
+
+zit organize "$@" "$(date_tag)"

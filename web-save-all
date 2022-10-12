@@ -1,0 +1,25 @@
+#! /bin/bash -e
+
+date() (
+	command date "+%Y-%m-%d"
+)
+
+date_tag() (
+	echo "zz-inbox-$(date)"
+)
+
+get_all_urls() (
+	~/Eng/Alfred/Alfred.alfredpreferences/workflows/zit/chrome_tabs.js |
+		jq -r '.[] | .' |
+		php -r 'while($f = fgets(STDIN)){ echo json_encode(array_merge(parse_url($f), ["url"=>trim($f)])) . "\n"; }'
+)
+
+inbox_tag="$(date_tag)"
+
+while read -r; do
+  url="$(echo "$REPLY" | jq -r .url)"
+  host="$(echo "$REPLY" | jq -r '.host | if startswith("www") then .[4:] else . end ' | tr '.' '-')"
+	zit new -bezeichnung "$url" -etiketten "$inbox_tag,zz-site-$host"
+done < <(get_all_urls)
+
+zit organize -group-by zz-site "$inbox_tag"

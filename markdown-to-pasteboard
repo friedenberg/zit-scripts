@@ -7,9 +7,9 @@ tacky="$(which tacky)"
 
 echo "Running pandoc..."
 ./.zit/bin/strip-metadatei "$file" \
-  | pandoc --to html -demail \
+  | pandoc --wrap=none --to html -demail \
   | sed 's|<title>-</title>||' \
   | "$tacky" copy \
     -i public.html - \
-    -i public.utf8-plain-text <(./.zit/bin/strip-metadatei "$file")
+    -i public.utf8-plain-text <(./.zit/bin/strip-metadatei "$file" | pandoc -dforum --wrap=none)
 echo "Copied to pasteboard"

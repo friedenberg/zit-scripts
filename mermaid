@@ -12,9 +12,18 @@ cat_zettel() (
 
 shift
 
+run_pandoc() (
+ out="$(mktemp).pdf"
+ mmdc -i <(cat) -o "$out"
+	cat "$out"
+)
+
+run_icat() (
+	kitty +kitten icat --background white --scale-up
+)
+
 for f in "$@"; do
 	cat_zettel "$f" |
-		mmdc -o "$f.png"
-
-  open "$f.png"
+		run_pandoc |
+		run_icat
 done
