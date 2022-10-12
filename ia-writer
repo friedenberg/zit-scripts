@@ -7,18 +7,33 @@ ia_writer_print_all_md() (
 	find "$dir" -iname '*.md' -print0
 )
 
+make_zettel() (
+  file="$1"
+  etikett="$2"
+  echo ---
+  echo "# $(head -n1 "$file")"
+  echo "- $etikett"
+  echo ---
+  echo
+  gtail -n+2 "$file"
+)
+
 zit_add_today() (
 	today="$(date -u +%Y-%m-%d)"
+  etikett="zz-inbox-$today"
 
-	zit add \
-		-organize \
-		-delete \
-		-etiketten "zz-inbox-$today" \
-		"$@"
+  for file in "$@"; do
+    make_zettel "$file" "$today"
+    zit new -edit=false <(make_zettel "$file" "$etikett")
+    rm "$file"
+  done
+
+  zit organize "$etikett"
 )
 
 export -f ia_writer_print_all_md
 export -f zit_add_today
+export -f make_zettel
 
 case "$verb" in
 push)

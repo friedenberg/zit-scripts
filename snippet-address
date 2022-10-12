@@ -6,42 +6,48 @@ print_zettel_toml_as_json() (
 	for hinweis in "$@"; do
 		zit show -type akte "$hinweis" |
 			tomlq |
-      jq ". + ({uid: \"zit://$hinweis\"})"
+			jq ". + ({uid: \"zit://$hinweis\"})"
 	done
 )
 
-print_zettel_toml_as_json xenon/poliwhirl lanthanum/growlithe \
-	| jq -s '
+hinweisen=(
+	xenon/poliwhirl
+	lanthanum/growlithe
+	polonium/ninetales
+)
+
+print_zettel_toml_as_json "${hinweisen[@]}" |
+	jq -s '
   def formats:
     .uid as $uid
     | [
       {
         title: "street",
-        format: (.street | ascii_upcase)
+        format: (.street )
       },
       {
         title: "street full",
-        format: (.street + " " + .unit | ascii_upcase)
+        format: (.street + " " + .unit )
       },
       {
         title: "unit",
-        format: (.unit | ascii_upcase)
+        format: (.unit // "" )
       },
       {
         title: "city",
-        format: (.city | ascii_upcase)
+        format: (.city // "" )
       },
       {
         title: "state",
-        format: (.state | ascii_upcase)
+        format: (.state // "" )
       },
       {
         title: "zip",
-        format: .zip
+        format: (.zip // "" )
       },
       {
         title: "zip+4",
-        format: (.zip + "-" + .zip_extension)
+        format: (.zip + "-" + .zip_extension )
       },
       {
         title: "one line",
@@ -57,7 +63,7 @@ print_zettel_toml_as_json xenon/poliwhirl lanthanum/growlithe \
           + .zip
           + "-"
           + .zip_extension
-          | ascii_upcase
+          
         )
       },
       {
@@ -74,7 +80,6 @@ print_zettel_toml_as_json xenon/poliwhirl lanthanum/growlithe \
           + .zip
           + "-"
           + .zip_extension
-          | ascii_upcase
         )
       }
     ] | [(.[] | . + {uid: ($uid + "/" + (.title | @uri))})]
@@ -82,6 +87,7 @@ print_zettel_toml_as_json xenon/poliwhirl lanthanum/growlithe \
 
   def items_from_formats:
     .[]
+    | .format |= (. | ascii_upcase)
     | {
       uid: .uid,
       title: .title,

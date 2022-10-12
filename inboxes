@@ -1,0 +1,62 @@
+#! /bin/bash -e
+
+locations=(
+	"$HOME/Downloads"
+	"/Users/sasha/Library/CloudStorage/GoogleDrive-sasha.friedenberg@gmail.com/My Drive/zz-inbox"
+	"$HOME/Library/Mobile Documents/iCloud~net~doo~scanbot~vpp/Documents"
+	# "$HOME/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents"
+)
+
+print_find_filter() (
+	echo '('
+	echo "-iname '*.pdf'"
+	echo ')'
+)
+
+shift
+limit="${1:--0}"
+today="$(date -u +%Y-%m-%d)"
+etiketten="zz-inbox-$today"
+
+find_arg_extensions() (
+	function join_by {
+		local d=${1-} f=${2-}
+		if shift 2; then
+			printf %s "$f" "${@/#/$d}"
+		fi
+	}
+
+	extensions=(
+		docx
+		eml
+		gif
+		heic
+		jpeg
+		jpg
+		m4a
+		mht
+		mov
+		mp4
+		pdf
+		png
+		xlsx
+    bash
+    md
+    odt
+    soulver
+    taskpaper
+	)
+
+	find_glob_extensions=()
+
+	for ext in "${extensions[@]}"; do
+		find_glob_extensions+=("-iname *.$ext")
+	done
+
+	join_by " -o " "${find_glob_extensions[@]}"
+)
+
+find "${locations[@]}" -type f -maxdepth 1 '(' $(find_arg_extensions) ')' -print0 |
+	sort -z --random-sort |
+	ghead -z "-n$limit" |
+	xargs -o -0 zit add -delete -open-akten -etiketten "$etiketten" -organize

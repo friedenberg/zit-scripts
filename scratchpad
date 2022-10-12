@@ -10,4 +10,8 @@ date_tag() (
 
 shift
 
-zit organize "$@" "$(date_tag)"
+if [[ "${#@}" -gt 0 ]]; then
+	zit organize "$@" "$(date_tag)"
+else
+	zit organize "$(date_tag)"
+fi
