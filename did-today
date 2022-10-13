@@ -1,0 +1,21 @@
+#! /bin/bash -e
+
+date() (
+	command date "+%Y-%m-%d"
+)
+
+date_tag() (
+	echo "w-$(date)"
+)
+
+shift
+
+date_tag="$(date_tag)"
+
+extras="today,zz-archive-task-done,zz-archive-task-cancelled"
+
+if [[ $# -gt 0 ]]; then
+	zit organize -extras "$extras" "$@"
+else
+	zit organize -extras "$extras" "$date_tag"
+fi
