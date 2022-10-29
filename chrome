@@ -1,0 +1,18 @@
+#! /bin/bash -e
+
+verb="$1"
+shift
+
+case "$verb" in
+pull) ;;
+
+push)
+	zit cat-objekte -type akte !toml-bookmark "$@" |
+		tomlq -r '.[].url' |
+    tr '\n' '\0' |
+		xargs -0 open --new -a 'Google Chrome' --args --new-window
+	 ;;
+
+*) ;;
+
+esac
