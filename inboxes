@@ -4,7 +4,7 @@ locations=(
 	"$HOME/Downloads"
 	"/Users/sasha/Library/CloudStorage/GoogleDrive-sasha.friedenberg@gmail.com/My Drive/zz-inbox"
 	"$HOME/Library/Mobile Documents/iCloud~net~doo~scanbot~vpp/Documents"
-	"$HOME/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents"
+	"$HOME/Library/Mobile Documents/27N4MQEA55~pro~writer/Documents/zz-inbox"
 )
 
 shift
@@ -53,7 +53,7 @@ etiketten="zz-inbox-$today"
 	find "${locations[@]}" -type f -maxdepth 1 '(' $(find_arg_extensions) ')' -print0 |
 		sort -z --random-sort |
 		ghead -z "-n$limit" |
-		xargs -o -0 zit add -delete -etiketten "$etiketten"
+		xargs -o -0 zit add -dedupe -delete -etiketten "$etiketten"
 }
 
 {
@@ -61,7 +61,7 @@ etiketten="zz-inbox-$today"
 	find "${locations[@]}" -type f -maxdepth 1 -iname '*.md' -print0 |
 		sort -z --random-sort |
 		ghead -z "-n$limit" |
-		xargs -o -0 zit new -edit=false -delete -etiketten "$etiketten" -filter "$filter"
+		xargs -o -0 zit new -delete -dedupe -edit=false -etiketten "$etiketten" -filter "$filter"
 }
 
 # TODO support open-akten in organize

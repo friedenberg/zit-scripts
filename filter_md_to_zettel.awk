@@ -5,7 +5,9 @@ BEGIN {
 }
 
 FNR == 1 {
-  print "# " $0
+  bez = $0
+  sub(/^\s*#\s*/, "", bez)
+  print "# " bez
   print "! md"
   print "---\n"
   next

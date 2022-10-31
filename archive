@@ -3,9 +3,10 @@
 shift
 
 default_locations=(
+	/Users/sasha/Library/CloudStorage/GoogleDrive-sasha.friedenberg@gmail.com/My\ Drive/
 	/Volumes/LIFELINE_A
 	/Volumes/NO\ NAME/
-	/Users/sasha/Library/CloudStorage/GoogleDrive-sasha.friedenberg@gmail.com/My\ Drive/
+  /Volumes/Summer_Safe/
 )
 
 if [[ "${#@}" -eq 0 ]]; then

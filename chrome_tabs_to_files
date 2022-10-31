@@ -1,0 +1,59 @@
+#! /bin/bash -e
+
+get_all_urls() (
+	~/Eng/Alfred/Alfred.alfredpreferences/workflows/zit/chrome_tabs.js |
+		jq -cr '.[] | .'
+)
+
+close_all() (
+	~/Eng/Alfred/Alfred.alfredpreferences/workflows/zit/close_chrome_tabs.js
+)
+
+get_url_components() (
+	php -r 'while($f = fgets(STDIN)){ echo json_encode(array_merge(parse_url($f), ["url"=>trim($f)])) . "\n"; }'
+)
+
+get_host() (
+	get_url_components |
+		jq -r '.host | if (. | tostring | startswith("www")) then .[4:] else . end | tostring | split(".") | reverse | join("-")'
+)
+
+files=()
+
+dir="$(mktemp -d)"
+echo "saving tabs to '$dir'" >&2
+
+while read -r; do
+	url="$(echo "$REPLY" | jq -r .url)"
+
+	case "$url" in
+	chrome://newtab/*)
+		continue
+
+	https://asana.zoom.us/j/*)
+		continue
+		;;
+
+	*) ;;
+
+	esac
+
+	title="$(echo "$REPLY" | jq -r .title)"
+	host="$(echo "$url" | get_host)"
+	url_encoded="$(echo "$REPLY" | jq -r '.url | @uri')"
+	file_name="$dir/$(echo "$url" | sha1sum | cut -d' ' -f1)"
+
+	{
+		echo ---
+		echo "# $title"
+		echo "- zz-site-$host"
+		echo "! toml-bookmark"
+		echo ---
+		echo
+		echo "url = \"$url\""
+	} >"$file_name"
+
+	files+=("$file_name")
+done < <(get_all_urls)
+
+echo "$dir"

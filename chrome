@@ -3,15 +3,38 @@
 verb="$1"
 shift
 
+function join_by {
+	local d=${1-} f=${2-}
+	if shift 2; then
+		printf %s "$f" "${@/#/$d}"
+	fi
+}
+
 case "$verb" in
-pull) ;;
+pull)
+	if ! dir="$(./.zit/bin/chrome_tabs_to_files)"; then
+		echo "failed to pull chrome tabs" >&1
+		exit 1
+	fi
+
+	#TODO support no tabs
+	zit new -edit=false -dedupe -etiketten "$(join_by ',' "$@")" $dir/*
+
+	if ! ./.zit/bin/chrome_close_all; then
+		echo "failed to close all chrome tabs" >&1
+		exit 1
+	fi
+
+	echo "deleting tabs saved to '$dir'" >&2
+	rm -r "$dir"
+	;;
 
 push)
 	zit cat-objekte -type akte !toml-bookmark "$@" |
 		tomlq -r '.[].url' |
-    tr '\n' '\0' |
+		tr '\n' '\0' |
 		xargs -0 open --new -a 'Google Chrome' --args --new-window
-	 ;;
+	;;
 
 *) ;;
 
